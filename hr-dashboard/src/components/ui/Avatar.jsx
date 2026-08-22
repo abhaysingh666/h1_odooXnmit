@@ -8,11 +8,11 @@ const SIZES = {
 };
 
 const PALETTE = [
-  ['#6E4AA8', '#EAE1F7'],
-  ['#914D77', '#F6E5EF'],
-  ['#5C6FD9', '#E6E8FA'],
-  ['#B3455A', '#F6E1E6'],
-  ['#6B5E7D', '#ECE4F6'],
+  ['#0F4C46', '#E1EDEA'],
+  ['#8F631F', '#F6ECD9'],
+  ['#3560C9', '#E4EAFA'],
+  ['#B3402F', '#F6E4E0'],
+  ['#5C6460', '#EFEEE7'],
 ];
 
 function paletteFor(seed) {
