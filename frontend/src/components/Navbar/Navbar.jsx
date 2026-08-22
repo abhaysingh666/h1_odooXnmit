@@ -2,15 +2,31 @@ import { NavLink, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Users, Clock4, CalendarClock, Menu, X, Building2 } from 'lucide-react';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
-
-const NAV_ITEMS = [
-  { to: '/employees', label: 'Employees', icon: Users },
-  { to: '/attendance', label: 'Attendance', icon: Clock4 },
-  { to: '/time-off', label: 'Time Off', icon: CalendarClock },
-];
+import { useAuth } from '../../hooks/useAuth';
+import { LayoutDashboard, ReceiptText, ClipboardList } from 'lucide-react';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useAuth();
+
+  const navItems = [];
+  if (user) {
+    if (user.role === 'admin') {
+      navItems.push(
+        { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { to: '/employees', label: 'Employees', icon: Users },
+        { to: '/admin/leave-approvals', label: 'Leave Approvals', icon: ClipboardList },
+        { to: '/admin/payroll', label: 'Payroll', icon: ReceiptText },
+      );
+    } else {
+      navItems.push(
+        { to: '/employees', label: 'Employees', icon: Users },
+        { to: '/attendance', label: 'Attendance', icon: Clock4 },
+        { to: '/leave', label: 'Leave', icon: CalendarClock },
+        { to: '/payroll', label: 'Payroll', icon: ReceiptText },
+      );
+    }
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--color-line)] bg-white/90 backdrop-blur">
@@ -26,7 +42,7 @@ export default function Navbar() {
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            {navItems.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -62,7 +78,7 @@ export default function Navbar() {
       {mobileOpen && (
         <nav className="animate-fade-in border-t border-[var(--color-line)] px-4 pb-3 pt-2 md:hidden" aria-label="Primary mobile">
           <div className="flex flex-col gap-1">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            {navItems.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}

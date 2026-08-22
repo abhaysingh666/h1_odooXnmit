@@ -2,33 +2,33 @@
 @import "tailwindcss";
 
 @theme {
-  /* ---- Color: Pine & Ochre HR system ---- */
-  --color-canvas: #F5F4EF;
+  /* ---- Color: Amethyst Haze HR system (violet & pink) ---- */
+  --color-canvas: #F8F7FC;
   --color-surface: #FFFFFF;
-  --color-surface-2: #EFEEE7;
-  --color-ink: #171B19;
-  --color-ink-soft: #5C6460;
-  --color-ink-faint: #8B9490;
-  --color-line: #E1DFD6;
-  --color-line-strong: #CFCDC1;
+  --color-surface-2: #F1EFF7;
+  --color-ink: #1E1B29;
+  --color-ink-soft: #5B546A;
+  --color-ink-faint: #8A8398;
+  --color-line: #E5E3EC;
+  --color-line-strong: #D5D1DF;
 
-  --color-primary: #0F4C46;
-  --color-primary-dark: #0A3733;
-  --color-primary-soft: #E1EDEA;
+  --color-primary: #6D28D9;
+  --color-primary-dark: #5B21B6;
+  --color-primary-soft: #F3E8FF;
 
-  --color-accent: #B9812E;
-  --color-accent-dark: #8F631F;
-  --color-accent-soft: #F6ECD9;
+  --color-accent: #EC4899;
+  --color-accent-dark: #DB2777;
+  --color-accent-soft: #FCE7F3;
 
-  --color-danger: #B3402F;
-  --color-danger-soft: #F6E4E0;
+  --color-danger: #E11D48;
+  --color-danger-soft: #FFE4E6;
 
-  --color-status-present: #2E8F5B;
-  --color-status-present-soft: #E1F1E7;
-  --color-status-leave: #3560C9;
-  --color-status-leave-soft: #E4EAFA;
-  --color-status-absent: #C6931B;
-  --color-status-absent-soft: #FBF0D8;
+  --color-status-present: #10B981;
+  --color-status-present-soft: #D1FAE5;
+  --color-status-leave: #3B82F6;
+  --color-status-leave-soft: #DBEAFE;
+  --color-status-absent: #F59E0B;
+  --color-status-absent-soft: #FEF3C7;
 
   /* ---- Type ---- */
   --font-display: "Fraunces", "Georgia", serif;

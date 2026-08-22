@@ -5,9 +5,12 @@ import Button from '../../components/ui/Button';
 import FormField, { inputClasses } from '../../components/ui/FormField';
 import { useToast } from '../../hooks/useToast';
 
+import * as authService from '../../services/authService';
+
 export default function SignupPage() {
   const [form, setForm] = useState({ company: '', name: '', email: '', phone: '', password: '', confirm: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -15,11 +18,21 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.password !== form.confirm) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setError('');
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 500));
-    setIsSubmitting(false);
-    toast.success('Account created. Sign in to continue.');
-    navigate('/login');
+    try {
+      await authService.register(form);
+      toast.success('Account created. Sign in to continue.');
+      navigate('/login');
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Unable to create account. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -97,6 +110,12 @@ export default function SignupPage() {
               />
             </FormField>
           </div>
+
+          {error && (
+            <p role="alert" className="text-xs font-medium text-[var(--color-danger)]">
+              {error}
+            </p>
+          )}
 
           <Button type="submit" isLoading={isSubmitting} className="mt-1 w-full">
             Sign Up
