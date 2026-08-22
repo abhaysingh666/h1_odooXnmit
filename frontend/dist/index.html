@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f5fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#221d2b" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="description"
+      content="Dayflow HRMS — every workday, perfectly aligned. Employee onboarding, credentials and access control."
+    />
+
+    <!-- Fonts declared by the Amethyst Haze theme: Geist / Lora / Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Fira+Code:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Dayflow HRMS — Every workday, perfectly aligned</title>
+
+    <script>
+      // Apply the stored theme before first paint so there is no flash of the
+      // wrong palette. Mirrors the logic in src/components/ThemeProvider.jsx.
+      (function () {
+        try {
+          var stored = localStorage.getItem('dayflow-theme') || 'system';
+          var dark =
+            stored === 'dark' ||
+            (stored === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-CHTgN5wW.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-jlnI2qv8.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
