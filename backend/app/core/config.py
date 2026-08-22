@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # Application Configuration
     ENVIRONMENT: str = "development"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    FRONTEND_URL: str = "http://localhost:5173"  # Used to build registration links
     
     # First Admin Setup (Bootstrap)
     FIRST_ADMIN_EMAIL: str = "admin@dayflow.com"

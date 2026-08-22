@@ -8,10 +8,17 @@ from app.core import (
     settings,
     connect_to_mongo,
     close_mongo_connection,
+    create_indexes,
     connect_to_redis,
     close_redis_connection
 )
-from app.routers import auth_router
+from app.routers import (
+    auth_router,
+    employees_router,
+    attendance_router,
+    leaves_router,
+    payroll_router,
+)
 
 
 @asynccontextmanager
@@ -24,6 +31,7 @@ async def lifespan(app: FastAPI):
     os.makedirs("uploads/company_logos", exist_ok=True)
     
     await connect_to_mongo()
+    await create_indexes()
     await connect_to_redis()
     print("✅ Application started successfully")
     
@@ -61,6 +69,10 @@ if os.path.exists("uploads"):
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(employees_router)
+app.include_router(attendance_router)
+app.include_router(leaves_router)
+app.include_router(payroll_router)
 
 
 @app.get("/")

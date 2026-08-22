@@ -1,15 +1,26 @@
+from datetime import date
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
 
 
 class AdminCreateEmployee(BaseModel):
-    """Schema for admin creating new employee"""
-    company_name: str = Field(..., min_length=2, max_length=100)
+    """
+    Schema for an admin/HR officer creating a new employee.
+
+    The employer is *not* supplied by the client — company name and logo are
+    taken from the authenticated admin's own record, so every employee of a
+    company is guaranteed to share the same Login ID prefix.
+    """
+
     name: str = Field(..., min_length=2, max_length=100)
     email_id: EmailStr
     phone: str = Field(..., min_length=10, max_length=15)
-    company_logo_url: Optional[str] = None
+    date_of_joining: Optional[date] = Field(
+        default=None,
+        description="Year of joining feeds the Login ID. Defaults to today.",
+    )
+    role: str = Field(default="employee", pattern="^(employee|admin)$")
 
     @field_validator("phone")
     @classmethod
@@ -20,14 +31,22 @@ class AdminCreateEmployee(BaseModel):
             raise ValueError("Invalid phone number format")
         return clean_phone
 
+    @field_validator("date_of_joining")
+    @classmethod
+    def validate_date_of_joining(cls, v: Optional[date]) -> Optional[date]:
+        """Joining dates may be backdated but not set in the future."""
+        if v is not None and v > date.today():
+            raise ValueError("Date of joining cannot be in the future")
+        return v
+
     class Config:
         json_schema_extra = {
             "example": {
-                "company_name": "Acme Corporation",
-                "name": "John Doe",
-                "email_id": "john@acme.com",
-                "phone": "+1234567890",
-                "company_logo_url": "https://res.cloudinary.com/xyz/logo.png"
+                "name": "Infamous Wolverine",
+                "email_id": "infamous@odoo.com",
+                "phone": "+919876543210",
+                "date_of_joining": "2022-06-01",
+                "role": "employee",
             }
         }
 
@@ -42,7 +61,7 @@ class EmployeeCreatedResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "login_id": "AC20240020001",
+                "login_id": "OIINWO20220001",
                 "temp_password": "Temp@123Abc",
                 "registration_link": "http://localhost:5173/complete-registration?token=abc123xyz",
                 "message": "Employee created successfully. Share these credentials with the employee."
@@ -154,7 +173,7 @@ class UserLogin(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "login_id": "CI20240020001",
+                "login_id": "OIINWO20220001",
                 "password": "SecurePass123"
             }
         }
@@ -217,7 +236,7 @@ class UserResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "_id": "507f1f77bcf86cd799439011",
-                "login_id": "CI20240020001",
+                "login_id": "OIINWO20220001",
                 "company_name": "Acme Corp",
                 "company_logo_url": "https://example.com/logo.png",
                 "name": "John Doe",
@@ -242,7 +261,7 @@ class AuthResponse(BaseModel):
             "example": {
                 "user": {
                     "_id": "507f1f77bcf86cd799439011",
-                    "login_id": "CI20240020001",
+                    "login_id": "OIINWO20220001",
                     "company_name": "Acme Corp",
                     "company_logo_url": "https://example.com/logo.png",
                     "name": "John Doe",

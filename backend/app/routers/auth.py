@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Response, Cookie, Depends, UploadFile, File
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from bson import ObjectId
+from pymongo.errors import DuplicateKeyError
 import secrets
 
 from ..schemas import (
@@ -76,7 +77,7 @@ async def admin_create_employee(
 ):
     """
     Admin creates a new employee.
-    
+
     Flow:
     1. Admin fills employee details
     2. System generates Login ID and temporary password
@@ -84,9 +85,14 @@ async def admin_create_employee(
     4. Returns credentials + registration link to admin
     5. Admin shares link with employee
     6. Employee completes registration by setting new password
+
+    The employer is taken from the authenticated admin's own record rather
+    than from the request body, so every employee of a company shares the
+    same Login ID prefix and one admin cannot create users under another
+    company's name.
     """
     db = get_database()
-    
+
     # Check if user already exists
     existing_user = await db.users.find_one({
         "$or": [
@@ -94,56 +100,81 @@ async def admin_create_employee(
             {"phone": employee_data.phone}
         ]
     })
-    
+
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email or phone already exists"
         )
-    
-    # Generate Login ID
-    current_year = datetime.utcnow().year
-    serial_number = await get_next_serial_number(db, current_year)
-    login_id = generate_login_id(
-        employee_data.company_name,
-        employee_data.name,  # Pass employee name
-        current_year,
-        serial_number
-    )
-    
+
+    # Employer details come from the admin creating this employee
+    company_name = admin.company_name
+    company_logo_url = admin.company_logo_url
+
+    # Year of joining drives the Login ID; default to today if not supplied
+    joining_date = employee_data.date_of_joining or date.today()
+    joining_datetime = datetime(joining_date.year, joining_date.month, joining_date.day)
+
+    # Generate Login ID (serial is reserved atomically per company + year)
+    try:
+        serial_number = await get_next_serial_number(
+            db, company_name, joining_date.year
+        )
+        login_id = generate_login_id(
+            company_name,
+            employee_data.name,
+            joining_date.year,
+            serial_number
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc)
+        )
+
     # Generate temporary password
     temp_password = generate_random_password(12)
     hashed_password = hash_password(temp_password)
-    
+
     # Generate registration token (valid for 7 days)
     registration_token = secrets.token_urlsafe(32)
     token_expires_at = datetime.utcnow() + timedelta(days=7)
-    
+
     # Create user document
     user_doc = {
         "login_id": login_id,
-        "company_name": employee_data.company_name,
-        "company_logo_url": employee_data.company_logo_url,
+        "company_name": company_name,
+        "company_logo_url": company_logo_url,
         "name": employee_data.name,
         "email_id": employee_data.email_id,
         "phone": employee_data.phone,
+        "date_of_joining": joining_datetime,
         "password": hashed_password,
         "is_first_login": True,
-        "role": "employee",
+        "role": employee_data.role,
         "is_verified": False,
         "registration_token": registration_token,
         "token_expires_at": token_expires_at,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
-    
-    # Insert user
-    await db.users.insert_one(user_doc)
-    
+
+    # Insert user — the unique indexes on login_id/email_id are the final
+    # guard against a race that slipped past the check above.
+    try:
+        await db.users.insert_one(user_doc)
+    except DuplicateKeyError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A user with this Login ID or email already exists. Please retry."
+        )
+
     # Generate registration link
-    base_url = "http://localhost:5173"  # Frontend URL
-    registration_link = f"{base_url}/complete-registration?token={registration_token}"
-    
+    registration_link = (
+        f"{settings.FRONTEND_URL.rstrip('/')}"
+        f"/complete-registration?token={registration_token}"
+    )
+
     return EmployeeCreatedResponse(
         login_id=login_id,
         temp_password=temp_password,
@@ -347,10 +378,12 @@ async def bootstrap_first_admin(response: Response):
     
     # Generate Login ID for first admin
     current_year = datetime.utcnow().year
-    
-    # Get next serial number based on ALL users in this year (including employees)
-    serial_number = await get_next_serial_number(db, current_year)
-    
+
+    # Serial is scoped to this company + year
+    serial_number = await get_next_serial_number(
+        db, settings.FIRST_ADMIN_COMPANY, current_year
+    )
+
     login_id = generate_login_id(
         settings.FIRST_ADMIN_COMPANY,
         settings.FIRST_ADMIN_NAME,  # Pass admin name
@@ -369,6 +402,7 @@ async def bootstrap_first_admin(response: Response):
         "name": settings.FIRST_ADMIN_NAME,
         "email_id": settings.FIRST_ADMIN_EMAIL,
         "phone": "+0000000000",  # Placeholder
+        "date_of_joining": datetime(current_year, 1, 1),
         "password": hashed_password,
         "is_first_login": False,  # Admin can login immediately
         "role": "admin",
@@ -547,15 +581,23 @@ async def change_password(
     
     # Hash new password
     new_hashed_password = hash_password(password_data.new_password)
-    
-    # Update password and set is_first_login to False
+
+    # Update password and set is_first_login to False.
+    # Changing the temporary password is what proves the employee actually
+    # received their credentials, so it also clears is_verified and retires
+    # any outstanding registration token.
     await db.users.update_one(
         {"_id": current_user.id},
         {
             "$set": {
                 "password": new_hashed_password,
                 "is_first_login": False,
+                "is_verified": True,
                 "updated_at": datetime.utcnow()
+            },
+            "$unset": {
+                "registration_token": "",
+                "token_expires_at": ""
             }
         }
     )

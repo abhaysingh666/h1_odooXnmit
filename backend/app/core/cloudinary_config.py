@@ -42,6 +42,45 @@ def upload_image_to_cloudinary(file_content: bytes, folder: str = "dayflow_hrms/
         raise Exception(f"Failed to upload image to Cloudinary: {str(e)}")
 
 
+def upload_file_to_cloudinary(
+    file_content: bytes,
+    folder: str = "dayflow_hrms/documents",
+    filename: str = None,
+) -> dict:
+    """
+    Upload a document (PDF, image, scan) to Cloudinary without transformations.
+
+    Used for supporting documents such as sick-leave certificates, where the
+    original file must be preserved as-is.
+
+    Args:
+        file_content: Binary content of the file
+        folder: Folder path in Cloudinary
+        filename: Optional original filename, kept for readable download URLs
+
+    Returns:
+        dict with 'url' and 'public_id'
+    """
+    try:
+        options = {
+            "folder": folder,
+            "resource_type": "auto",
+        }
+        if filename:
+            options["use_filename"] = True
+            options["unique_filename"] = True
+            options["filename_override"] = filename
+
+        result = cloudinary.uploader.upload(file_content, **options)
+
+        return {
+            "url": result.get("secure_url"),
+            "public_id": result.get("public_id"),
+        }
+    except Exception as e:
+        raise Exception(f"Failed to upload file to Cloudinary: {str(e)}")
+
+
 def delete_image_from_cloudinary(public_id: str) -> bool:
     """
     Delete image from Cloudinary.
