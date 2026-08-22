@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Environment files (local secrets)
+.env
+!.env.example
+backend/.env
+!backend/.env.example
+frontend/.env
+!frontend/.env.example
+
+# Build outputs
+dist/
+build/
+
+# IDE / Agent caches
+.agents/
+.claude/
+.windsurf/
+.vscode/
+.DS_Store
