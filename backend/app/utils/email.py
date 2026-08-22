@@ -31,6 +31,7 @@ async def send_email_alert(recipient_email: str, subject: str, body_html: str, u
         "sent_at": get_ist_now(),
         "status": "delivered"
     }
+    await db.notifications.insert_one(notif_doc)
     safe_subject = subject.encode('ascii', 'ignore').decode('ascii')
     print(f"[NOTIFICATION ALERT] Saved email alert for {recipient_email}: '{safe_subject}'")
 

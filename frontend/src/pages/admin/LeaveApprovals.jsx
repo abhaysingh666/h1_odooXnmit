@@ -129,7 +129,7 @@ export const AdminLeaveApprovals = () => {
                 <table className="w-full text-sm text-left">
                   <thead style={{ background: 'var(--bg-card-alt)' }}>
                     <tr>
-                      {['Name / ID', 'Start Date', 'End Date', 'Time Off Type', 'Days', 'Status', 'Actions'].map(h => (
+                      {['Name / ID', 'Start Date', 'End Date', 'Type', 'Days', 'Reason', 'Status', 'Actions'].map(h => (
                         <th key={h} className="px-5 py-3.5 text-[11px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{h}</th>
                       ))}
                     </tr>
@@ -144,12 +144,26 @@ export const AdminLeaveApprovals = () => {
                           </td>
                           <td className="px-5 py-3.5 font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>{l.start_date}</td>
                           <td className="px-5 py-3.5 font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>{l.end_date}</td>
-                          <td className="px-5 py-3.5 font-semibold capitalize" style={{ color: 'var(--accent)' }}>
-                            {l.leave_type === 'paid' ? 'Paid Time Off' : l.leave_type === 'sick' ? 'Sick Leave' : 'Unpaid Leave'}
+                          <td className="px-5 py-3.5 font-semibold capitalize text-xs" style={{ color: 'var(--accent)' }}>
+                            {l.leave_type === 'paid' ? '💰 Paid Time Off' : l.leave_type === 'sick' ? '🤒 Sick Leave' : '📝 Unpaid Leave'}
                           </td>
                           <td className="px-5 py-3.5 font-bold" style={{ color: 'var(--accent-emerald)' }}>{l.total_days}d</td>
+                          <td className="px-5 py-3.5 text-xs max-w-[180px]" style={{ color: 'var(--text-secondary)' }}>
+                            {l.reason ? (
+                              <span className="italic" title={l.reason}>
+                                {l.reason.length > 50 ? l.reason.slice(0, 50) + '...' : l.reason}
+                              </span>
+                            ) : (
+                              <span style={{ color: 'var(--text-muted)' }}>No reason provided</span>
+                            )}
+                            {l.admin_comments && l.status !== 'pending' && (
+                              <div className="mt-1 text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
+                                Admin: {l.admin_comments}
+                              </div>
+                            )}
+                          </td>
                           <td className="px-5 py-3.5">
-                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: ss.bg, border: `1px solid ${ss.border}`, color: ss.color }}>
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap" style={{ background: ss.bg, border: `1px solid ${ss.border}`, color: ss.color }}>
                               {ss.label}
                             </span>
                           </td>

@@ -326,7 +326,7 @@ export const AdminEmployees = () => {
                       <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40">
                         <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">Skills</h4>
                         <div className="flex flex-wrap gap-1.5">
-                          {(selectedEmp.skills || ['React', 'Python']).map((s) => (
+                          {(selectedEmp.skills?.length ? selectedEmp.skills : []).map((s) => (
                             <span key={s} className="px-2 py-0.5 rounded-md bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-medium">
                               {s}
                             </span>
@@ -336,7 +336,7 @@ export const AdminEmployees = () => {
                       <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40">
                         <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">Certifications</h4>
                         <ul className="list-disc list-inside space-y-1">
-                          {(selectedEmp.certifications || ['Agile Certified']).map((c) => (
+                          {(selectedEmp.certifications?.length ? selectedEmp.certifications : []).map((c) => (
                             <li key={c}>{c}</li>
                           ))}
                         </ul>
@@ -350,15 +350,15 @@ export const AdminEmployees = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40">
                         <span className="text-purple-500 font-semibold block mb-1">Date of Birth</span>
-                        <span>{selectedEmp.personal_details?.date_of_birth || '1995-06-15'}</span>
+                        <span>{selectedEmp.personal_details?.date_of_birth || '—'}</span>
                       </div>
                       <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40">
                         <span className="text-purple-500 font-semibold block mb-1">Nationality</span>
-                        <span>{selectedEmp.personal_details?.nationality || 'American'}</span>
+                        <span>{selectedEmp.personal_details?.nationality || '—'}</span>
                       </div>
                       <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40">
                         <span className="text-purple-500 font-semibold block mb-1">Marital Status</span>
-                        <span>{selectedEmp.personal_details?.marital_status || 'Single'}</span>
+                        <span>{selectedEmp.personal_details?.marital_status || '—'}</span>
                       </div>
                       <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40">
                         <span className="text-purple-500 font-semibold block mb-1">Personal Email</span>

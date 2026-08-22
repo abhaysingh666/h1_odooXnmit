@@ -74,8 +74,9 @@ async def get_all_leaves(current_user: dict = Depends(get_current_admin)):
     return leaves
 
 @router.put("/{id}/approve")
-async def approve_leave(id: str, data: dict = {}, current_user: dict = Depends(get_current_admin)):
+async def approve_leave(id: str, data: dict = None, current_user: dict = Depends(get_current_admin)):
     db = get_database()
+    data = data or {}
     comment = data.get("admin_comments", "Approved by Admin")
     
     try:
@@ -107,8 +108,9 @@ async def approve_leave(id: str, data: dict = {}, current_user: dict = Depends(g
     return {"message": "Leave approved"}
 
 @router.put("/{id}/reject")
-async def reject_leave(id: str, data: dict = {}, current_user: dict = Depends(get_current_admin)):
+async def reject_leave(id: str, data: dict = None, current_user: dict = Depends(get_current_admin)):
     db = get_database()
+    data = data or {}
     comment = data.get("admin_comments", "Rejected by Admin")
     
     try:

@@ -36,12 +36,14 @@ export const EmployeeProfile = () => {
   const fetchProfile = async () => {
     try {
       const res = await API.get('/employees/me');
-      setProfile(res.data);
-      setPhone(res.data.personal_details?.phone || '');
-      setAddress(res.data.personal_details?.address || '');
-      setAbout(res.data.about || '');
-      setSkillsStr((res.data.skills || ['React', 'FastAPI', 'Python', 'JavaScript', 'Tailwind CSS']).join(', '));
-      setCertsStr((res.data.certifications || ['AWS Certified Developer', 'Agile Scrum Master']).join(', '));
+      const data = res.data;
+      setProfile(data);
+      setPhone(data.personal_details?.phone || '');
+      setAddress(data.personal_details?.address || '');
+      setAbout(data.about || '');
+      // Only use defaults if skills/certs haven't been set at all
+      setSkillsStr(data.skills?.length ? data.skills.join(', ') : '');
+      setCertsStr(data.certifications?.length ? data.certifications.join(', ') : '');
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
@@ -169,7 +171,7 @@ export const EmployeeProfile = () => {
                   style={{ background: 'var(--bg-input)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }} />
               ) : (
                 <div className="flex flex-wrap gap-1.5">
-                  {(profile?.skills || ['React', 'FastAPI', 'Python', 'Tailwind CSS']).map(s => (
+                  {(profile?.skills?.length ? profile.skills : []).map(s => (
                     <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-bold border" style={{ background: 'var(--bg-card-alt)', borderColor: 'var(--border-main)', color: 'var(--accent)' }}>
                       {s}
                     </span>
@@ -185,7 +187,7 @@ export const EmployeeProfile = () => {
                   style={{ background: 'var(--bg-input)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }} />
               ) : (
                 <ul className="list-disc list-inside text-xs font-semibold space-y-1" style={{ color: 'var(--text-secondary)' }}>
-                  {(profile?.certifications || ['AWS Certified Developer', 'Agile Scrum Master']).map(c => (
+                  {(profile?.certifications?.length ? profile.certifications : []).map(c => (
                     <li key={c}>{c}</li>
                   ))}
                 </ul>
@@ -202,35 +204,47 @@ export const EmployeeProfile = () => {
             <div>
               <label className="block text-[11px] font-extrabold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Phone Number</label>
               {editing ? (
-                <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555-0199"
+                <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +91 9876543210"
                   className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none"
                   style={{ background: 'var(--bg-input)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }} />
-              ) : <Field label="" value={phone || '+1 555-0199'} />}
+              ) : (
+                <div className="p-3.5 rounded-xl border" style={{ background: 'var(--bg-card-alt)', borderColor: 'var(--border-main)' }}>
+                  <p className="text-sm font-semibold" style={{ color: phone ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                    {phone || 'Not set — click Edit Profile to add'}
+                  </p>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-[11px] font-extrabold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Residing Address</label>
               {editing ? (
-                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 Main St"
+                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. 456 Tech Boulevard, Bangalore"
                   className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none"
                   style={{ background: 'var(--bg-input)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }} />
-              ) : <Field label="" value={address || '123 Innovation Way, Tech Park'} />}
+              ) : (
+                <div className="p-3.5 rounded-xl border" style={{ background: 'var(--bg-card-alt)', borderColor: 'var(--border-main)' }}>
+                  <p className="text-sm font-semibold" style={{ color: address ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                    {address || 'Not set — click Edit Profile to add'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Field label="Date of Birth" value={pd.date_of_birth || '1995-06-15'} locked />
-            <Field label="Nationality" value={pd.nationality || 'American'} locked />
-            <Field label="Gender" value={pd.gender || 'Male'} locked />
-            <Field label="Marital Status" value={pd.marital_status || 'Single'} locked />
+            <Field label="Date of Birth" value={pd.date_of_birth || '—'} locked />
+            <Field label="Nationality" value={pd.nationality || '—'} locked />
+            <Field label="Gender" value={pd.gender || '—'} locked />
+            <Field label="Marital Status" value={pd.marital_status || '—'} locked />
           </div>
 
           <div className="p-4 rounded-xl border space-y-2" style={{ background: 'var(--bg-card-alt)', borderColor: 'var(--border-main)' }}>
             <h4 className="font-bold text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Bank Account Details</h4>
             <div className="grid grid-cols-2 gap-2 text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>
-              <div>Account No: <strong style={{ color: 'var(--text-primary)' }}>{bd.account_number || '987654321012'}</strong></div>
-              <div>Bank: <strong style={{ color: 'var(--text-primary)' }}>{bd.bank_name || 'Chase Bank'}</strong></div>
-              <div>IFSC Code: <strong style={{ color: 'var(--text-primary)' }}>{bd.ifsc_code || 'CHAS0123456'}</strong></div>
-              <div>PAN No: <strong style={{ color: 'var(--text-primary)' }}>{bd.pan_no || 'ABCDE1234F'}</strong></div>
+              <div>Account No: <strong style={{ color: bd.account_number ? 'var(--text-primary)' : 'var(--text-muted)' }}>{bd.account_number || '—'}</strong></div>
+              <div>Bank: <strong style={{ color: bd.bank_name ? 'var(--text-primary)' : 'var(--text-muted)' }}>{bd.bank_name || '—'}</strong></div>
+              <div>IFSC Code: <strong style={{ color: bd.ifsc_code ? 'var(--text-primary)' : 'var(--text-muted)' }}>{bd.ifsc_code || '—'}</strong></div>
+              <div>PAN No: <strong style={{ color: bd.pan_no ? 'var(--text-primary)' : 'var(--text-muted)' }}>{bd.pan_no || '—'}</strong></div>
             </div>
           </div>
         </Card>

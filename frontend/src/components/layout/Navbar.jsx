@@ -21,7 +21,7 @@ export const Navbar = () => {
 
   // Notifications State
   const [showNotifications, setShowNotifications] = useState(false);
-  const [unread, setUnread] = useState(3);
+  const [unread, setUnread] = useState(0);
 
   const fetchAttendanceStatus = async () => {
     try {
@@ -224,7 +224,7 @@ export const Navbar = () => {
                 <button
                   onClick={() => {
                     setShowProfileMenu(false);
-                    navigate(user?.role === 'admin' ? '/admin/profile' : '/profile');
+                    navigate('/profile');
                   }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition hover:bg-purple-500/10 cursor-pointer"
                   style={{ color: 'var(--text-primary)' }}

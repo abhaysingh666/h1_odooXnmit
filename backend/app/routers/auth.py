@@ -77,13 +77,13 @@ async def register_user(user_in: UserCreate):
         "personal_details": {
             "first_name": user_in.first_name or "Employee",
             "last_name": user_in.last_name or "",
-            "phone": "+1 555-0199",
-            "address": "123 Innovation Way, Tech Park",
+            "phone": "",
+            "address": "",
             "profile_picture": "",
-            "gender": "Male",
-            "date_of_birth": "1995-06-15",
-            "nationality": "American",
-            "marital_status": "Single",
+            "gender": "",
+            "date_of_birth": "",
+            "nationality": "",
+            "marital_status": "",
             "personal_email": user_in.email
         },
         "job_details": {
@@ -91,18 +91,18 @@ async def register_user(user_in: UserCreate):
             "designation": "HR Officer" if user_in.role == "admin" else "Software Engineer",
             "join_date": get_ist_date_str(),
             "employment_type": "full-time",
-            "manager": "Sarah Mitchell",
-            "location": "Headquarters - NY"
+            "manager": "",
+            "location": ""
         },
-        "about": "Passionate professional dedicated to building exceptional software and driving team success.",
-        "skills": ["React", "FastAPI", "Python", "JavaScript", "Tailwind CSS"],
-        "certifications": ["AWS Certified Developer", "Agile Scrum Master"],
+        "about": "",
+        "skills": [],
+        "certifications": [],
         "bank_details": {
-            "account_number": "987654321012",
-            "bank_name": "Chase Bank",
-            "ifsc_code": "CHAS0123456",
-            "pan_no": "ABCDE1234F",
-            "uan_no": "100908070605"
+            "account_number": "",
+            "bank_name": "",
+            "ifsc_code": "",
+            "pan_no": "",
+            "uan_no": ""
         },
         "salary_info": {
             "wage_type": "Fixed Wage",
@@ -149,6 +149,7 @@ async def register_user(user_in: UserCreate):
         "created_at": now_ist,
         "updated_at": now_ist
     }
+    await db.payroll.insert_one(new_payroll)
     await send_email_alert(
         recipient_email=user_in.email,
         subject="Welcome to Dayflow HRMS 🚀",

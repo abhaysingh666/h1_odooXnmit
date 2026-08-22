@@ -32,14 +32,22 @@ export const EmployeeDashboard = () => {
 
   const loadData = async () => {
     try {
-      const [attRes, leaveRes, empRes] = await Promise.all([
+      const [attRes, leaveRes] = await Promise.all([
         API.get('/attendance/me'),
         API.get('/leaves/me'),
-        API.get('/employees')
       ]);
       setAttendance(attRes.data);
       setLeaves(leaveRes.data);
-      setEmployees(empRes.data);
+
+      // Employee directory: admins can see all, employees get 403 (silently handle)
+      try {
+        const empRes = await API.get('/employees');
+        setEmployees(empRes.data);
+      } catch (empErr) {
+        // Non-admin employees hit 403 — show empty directory gracefully
+        setEmployees([]);
+      }
+
       const d = new Date();
       const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const today = attRes.data.find(r => (!r.check_out && r.check_in) || r.date === todayStr);
